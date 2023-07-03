@@ -52,3 +52,26 @@ local sheetOptions =
 }
 
 local objectSheet = graphics.newImageSheet("gameObjects.png", sheetOptions)
+
+-- Initialize variables
+local lives = 3
+local score = 0
+local died = false
+
+local asteroidsTable = {}
+
+local ship
+local gameLoopTimer
+local livesText
+local scoreText
+
+-- Set up display groups
+local backGroup = display.newGroup()  -- Display group for the background image
+local mainGroup = display.newGroup()  -- Display group for the ship, asteroids, lasers, etc.
+local uiGroup = display.newGroup()    -- Display group for UI objects like the score
+
+
+-- Load the background
+local background = display.newImageRect(backGroup, "background.png", 800, 1400 )
+background.x = display.contentCenterX
+background.y = display.contentCenterY
