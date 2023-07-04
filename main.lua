@@ -148,7 +148,6 @@ local function dragShip(event)
     display.currentStage:setFocus( ship )
     -- Store initial offset position
     ship.touchOffsetX = event.x - ship.x
-
   elseif ( "moved" == phase ) then
     -- Move the ship to the new touch position
     ship.x = event.x - ship.touchOffsetX
@@ -161,3 +160,25 @@ local function dragShip(event)
 end
 
 ship:addEventListener( "touch", dragShip )
+
+function outsideScreen(obj)
+  return (obj.x < -100 or
+      obj.x > display.contentWidth + 100 or
+      obj.y < -100 or
+      obj.y > display.contentHeight + 100)
+end
+
+local function gameLoop()
+  createAsteroid()
+
+  for i = #asteroidsTable, 1, -1 do
+    local thisAsteroid = asteroidsTable[i]
+    if outsideScreen(thisAsteroid)
+    then
+      display.remove(thisAsteroid)
+      table.remove(asteroidsTable, i)
+    end
+  end
+end
+
+gameLoopTimer = timer.performWithDelay( 500, gameLoop, 0 )
