@@ -87,17 +87,17 @@ local function createAsteroid()
     -- From the left
     newAsteroid.x = -60
     newAsteroid.y = math.random( 500 )
-    newAsteroid:setLinearVelocity( math.random( 40,120 ), math.random( 20,60 ) )
+    newAsteroid:setLinearVelocity( math.random( 40,120 ), math.random( 40,120 ) )
   elseif ( whereFrom == 2 ) then
     -- From the top
     newAsteroid.x = math.random( display.contentWidth )
     newAsteroid.y = -60
-    newAsteroid:setLinearVelocity( math.random( -40,40 ), math.random( 40,120 ) )
+    newAsteroid:setLinearVelocity( math.random( -40,40 ), math.random( 80,240 ) )
   elseif ( whereFrom == 3 ) then
     -- From the right
     newAsteroid.x = display.contentWidth + 60
     newAsteroid.y = math.random( 500 )
-    newAsteroid:setLinearVelocity( math.random( -120,-40 ), math.random( 20,60 ) )
+    newAsteroid:setLinearVelocity( math.random( -120,-40 ), math.random( 40,120  ) )
   end
 
   newAsteroid:applyTorque( math.random( -6,6 ) )
@@ -172,6 +172,27 @@ local function restoreShip()
   } )
 end
 
+local function endGame()
+	composer.gotoScene( "menu", { time=500, effect="crossFade" } )
+end
+
+local function shipCollision()
+	if (died == false) then
+		died = true
+
+		lives = lives - 1
+		livesText.text = "Lives: " .. lives
+
+		if (lives == 0) then
+			display.remove(ship)
+			timer.performWithDelay( 2000, endGame )
+		else
+			ship.alpha = 0
+			timer.performWithDelay( 1000, restoreShip )
+		end
+	end
+end
+
 local function onCollision (event)
   if (event.phase == "began") then
     local obj1 = event.object1
@@ -195,19 +216,7 @@ local function onCollision (event)
     elseif ((obj1.myName == "ship" and obj2.myName == "asteroid") or
         (obj1.myName == "asteroid" and obj2.myName == "ship"))
     then
-      if (died == false) then
-        died = true
-
-        lives = lives - 1
-        livesText.text = "Lives: " .. lives
-
-        if (lives == 0) then
-          display.remove(ship)
-        else
-          ship.alpha = 0
-          timer.performWithDelay( 1000, restoreShip )
-        end
-      end
+			shipCollision()
     end
   end
 end
@@ -279,10 +288,13 @@ function scene:hide( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is on screen (but is about to go off screen)
+    timer.cancel( gameLoopTimer )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-
+    Runtime:removeEventListener( "collision", onCollision )
+    physics.pause()
+		composer.removeScene( "game" )
 	end
 end
 
