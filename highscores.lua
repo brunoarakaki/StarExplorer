@@ -50,7 +50,6 @@ end
 
 -- create()
 function scene:create( event )
-
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
@@ -97,7 +96,6 @@ end
 
 -- show()
 function scene:show( event )
-
 	local sceneGroup = self.view
 	local phase = event.phase
 
@@ -106,9 +104,6 @@ function scene:show( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
-
-		compose.removeScene("highscores")
-
 	end
 end
 
@@ -124,7 +119,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-
+		composer.removeScene("highscores")
 	end
 end
 
