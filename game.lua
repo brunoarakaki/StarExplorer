@@ -56,7 +56,7 @@ local sheetOptions =
 local objectSheet = graphics.newImageSheet("gameObjects.png", sheetOptions )
 
 -- Initialize variables
-local lives = 3
+local lives = 1
 local score = 0
 local died = false
 
@@ -70,6 +70,11 @@ local scoreText
 local backGroup
 local mainGroup
 local uiGroup
+
+
+local explosionSound
+local fireSound
+local musicTrack
 
 local function updateText()
   livesText.text = "Lives: " .. lives
@@ -104,6 +109,9 @@ local function createAsteroid()
 end
 
 local function fireLaser()
+	-- Play fire sound!
+	audio.play( fireSound )
+
   local newLaser = display.newImageRect( mainGroup, objectSheet, 5, 14, 40 )
   physics.addBody( newLaser, "dynamic", { isSensor=true } )
   newLaser.isBullet = true
@@ -181,6 +189,9 @@ local function shipCollision()
 	if (died == false) then
 		died = true
 
+		-- Play explosion sound!
+		audio.play( explosionSound )
+
 		lives = lives - 1
 		livesText.text = "Lives: " .. lives
 
@@ -203,6 +214,9 @@ local function onCollision (event)
     then
       display.remove(obj1)
       display.remove(obj2)
+
+			-- Play explosion sound!
+			audio.play( explosionSound )
 
       for i = #asteroidsTable, 1, -1 do
         if (asteroidsTable[i] == obj1 or asteroidsTable[i] == obj2) then
@@ -260,6 +274,10 @@ function scene:create( event )
 
 	ship:addEventListener( "tap", fireLaser )
 	ship:addEventListener( "touch", dragShip )
+
+	explosionSound = audio.loadSound( "audio/explosion.wav" )
+	fireSound = audio.loadSound( "audio/fire.wav" )
+	musicTrack = audio.loadStream( "audio/80s-Space-Game_Looping.wav")
 end
 
 
@@ -277,6 +295,8 @@ function scene:show( event )
 		physics.start()
 		Runtime:addEventListener( "collision", onCollision )
 		gameLoopTimer = timer.performWithDelay( 500, gameLoop, 0 )
+		-- Start the music!
+		audio.play( musicTrack, { channel=1, loops=-1 } )
 	end
 end
 
@@ -295,6 +315,8 @@ function scene:hide( event )
 		-- Code here runs immediately after the scene goes entirely off screen
     Runtime:removeEventListener( "collision", onCollision )
     physics.pause()
+		-- Stop the music!
+		audio.stop( 1 )
 		composer.removeScene( "game" )
 	end
 end
@@ -305,7 +327,10 @@ function scene:destroy( event )
 
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
-
+	-- Dispose audio!
+	audio.dispose( explosionSound )
+	audio.dispose( fireSound )
+	audio.dispose( musicTrack )
 end
 
 
